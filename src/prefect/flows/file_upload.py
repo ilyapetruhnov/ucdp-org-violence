@@ -6,11 +6,7 @@ from prefect_gcp.cloud_storage import GcsBucket
 @task(log_prints=True, name="Fetch_data", retries=1)
 def fetch_file(url) -> pd.DataFrame:
     """File download"""
-
-    # os.system(f"wget {url} -O {file_name}.csv")
-    # print(os.listdir())
     df = pd.read_csv(url)
-
     return df
 
 @task(log_prints=True, name="Saving_data_locally", retries=1)
@@ -23,7 +19,7 @@ def save_locally(df, local_save_path) -> Path:
 @task(log_prints=True, name="Upload_GCS", retries=1)
 def upload_gcs(path) -> None:
     "Upload file to GCS"
-    gcs_block = GcsBucket.load("zoomcamp-gcs-bucket")
+    gcs_block = GcsBucket.load("gcs-bucket")
     gcs_block.upload_from_path(from_path = path, to_path = path, timeout=180)
     return None
 
