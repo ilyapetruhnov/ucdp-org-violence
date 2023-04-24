@@ -5,6 +5,7 @@ import argparse
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, sum
+from dataproc_submit import submit_job
 
 
 parser = argparse.ArgumentParser()
