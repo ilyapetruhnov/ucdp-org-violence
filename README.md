@@ -26,10 +26,7 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 
 ## Dashboard 
 [Click here](https://lookerstudio.google.com/s/rTWuX39b4nI) to see my Looker dashboard.
-
-<p align="left">
-<img src="report_view.png" width="600">
-</p>
+![](images/report_view.png)
 
 
 ## How to run it?
