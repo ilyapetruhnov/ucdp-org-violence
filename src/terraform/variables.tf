@@ -31,5 +31,5 @@ variable "BQ_DATASET" {
 variable "dataproc_cluster_name" {
   description = "Dataproc cluster"
   type        = string
-  default     = "ucdpconflicts"
+  default     = "dataproccluster"
 }

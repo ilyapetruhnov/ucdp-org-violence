@@ -49,11 +49,14 @@ resource "google_bigquery_dataset" "ucdp_conflicts_dataset" {
   location   = var.region
 }
 
-resource "google_dataproc_cluster" "ucdpconflicts" {
+resource "google_dataproc_cluster" "dataproccluster" {
   name   = var.dataproc_cluster_name
   region = var.region
 
   cluster_config {
+
+    temp_bucket = "${local.data_lake_bucket}_${var.project}"
+
     master_config {
       num_instances = 1
       machine_type  = "n1-standard-2"
