@@ -33,7 +33,14 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 
 ## How to run it?
 
-1. Setup your Google Cloud environment
+1. Create a virtual env and install all required dependencies. Example with conda:
+```bash
+conda create --name venv
+conda activate venv
+conda install pip
+pip install -r requirements.txt
+```
+2. Setup your Google Cloud environment
 - Create a [Google Cloud Platform project](https://console.cloud.google.com/cloud-resource-manager)
 - Configure Identity and Access Management (IAM) for the service account, giving it the following privileges: Owner, BigQuery Admin, Dataproc Admin, Compute Admin, Compute Storage Admin, Storage Admin and Storage Object Admin
 - Enable BigQuery, Compute, Dataproc and Storage APIs
@@ -43,14 +50,6 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 ```bash
 gcloud auth login --cred-file=terraform/<credentials>.json
 gcloud config set project <project_id>
-```
-
-2. Create a virtual env and install all required dependencies. Example with conda:
-```bash
-conda create --name venv
-conda activate venv
-conda install pip
-pip install -r requirements.txt
 ```
 
 3. Setup your infrastructure
@@ -107,7 +106,6 @@ gcloud dataproc clusters start <dataproc_cluster_name> --region=<region>
 ```
 - Wait 1-2 minutes for the cluster to start and submit pyspark job to the cluster
 ```bash
-cd pyspark/
 gcloud dataproc jobs submit pyspark --cluster=<dataproc_cluster_name> --region=<region> --jars=gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar \
     job.py -- --input_georeferenced=gs://<data_lake_bucket>/data/ucdp/georeferenced/*/ --input_candidate=gs://<data_lake_bucket>/data/ucdp/candidate/*/ --gcs_bucket=<data_lake_bucket> --output=gs://<data_lake_bucket>/data/ucdp/output/*/ --output_table=<project_id>.<BQ_DATASET>.report
 ```
