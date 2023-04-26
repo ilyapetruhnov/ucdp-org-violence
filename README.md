@@ -32,15 +32,16 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 ## How to run it?
 1. Setup your Google Cloud environment
 - Create a [Google Cloud Platform project](https://console.cloud.google.com/cloud-resource-manager)
-- Configure Identity and Access Management (IAM) for the service account, giving it the following privileges: BigQuery Admin, Storage Admin and Storage Object Admin
-- Download the JSON credentials and save it, e.g. to `~/.gc/<credentials>`
+- Configure Identity and Access Management (IAM) for the service account, giving it the following privileges: BigQuery Admin, Dataproc Admin, Compute Admin, Compute Storage Admin, Storage Admin and Storage Object Admin
+- Download the JSON credentials and save it in terraform folder, e.g. to `src/terraform/<credentials>`
 - Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install-sdk)
-- Let the [environment variable point to your GCP key](https://cloud.google.com/docs/authentication/application-default-credentials#GAC), authenticate it and refresh the session token
+- Authenticate the service account
 ```bash
-export GOOGLE_APPLICATION_CREDENTIALS=<path_to_your_credentials>.json
-gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
-gcloud auth application-default login
+export YOUR_GCP_CREDENTIALS="~/terraform/<credentials>.json”
+gcloud auth login --cred-file=terraform/<credentials>.json
+gcloud config set project <PROJECT_ID>
 ```
+
 2. Install all required dependencies into your environment
 ```bash
 pip install -r requirements.txt
@@ -63,43 +64,48 @@ terraform plan -var="project=<your-gcp-project-id>"
 terraform apply -var="project=<your-gcp-project-id>"
 ```
 4. Orchestration
-- If you do not have a prefect workspace, sign-up for the prefect cloud and create a workspace [here](https://app.prefect.cloud/auth/login)
+- Go to Prefect directory where Dockerfile is located and login to Docker cloud
 ```bash
+docker login
 docker image pull weekcrackle/prefect:ucdpconflicts
+docker image build -t weekcrackle/prefect:ucdpconflicts .
 ```
 - To create the [prefect blocks] `/prefect/pblocks/blocks.py` run
-
 ```bash
 python blocks/blocks.py
 ```
-
+- Start prefect agent
+```bash
+prefect agent start -q 'default'
+```
+- In a new terminal window deploy the first job (uploading files to GCP Storage)
 ```bash
 python flows/deploy_file_upload.py
 ```
-
+- Run deployment to ingest data for 2022 conflicts
 ```bash
 prefect deployment run upload_files/file_upload_flow -p "year=22"
 ```
-
+- Run deployment to ingest data for 2023 conflicts (Jan,Feb)
 ```bash
 prefect deployment run upload_files/file_upload_flow -p "year=23" -p "months=[1,2]"
 ```
+- Deploy and run a new job to ingest data from the API (years 1989-2021)
+```bash
+python flows/deploy_api_gcs.py
 
+prefect deployment run etl_etl_gcs/api_request_flow
+```
+
+5. Data processing
+- Start dataproc cluster
 ```bash
 gcloud dataproc clusters start ucdpconflicts --region=europe-west6
 ```
-
+- Wait 1-2 minutes for the cluster to start and submit pyspark job to the cluster
 ```bash
 gcloud dataproc jobs submit pyspark --cluster=ucdpconflicts --region=europe-west6 --jars=gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar \
     job.py -- --input_georeferenced=gs://ucdp_conflicts_dl_bucket_ucdp-armed-conflicts/data/ucdp/georeferenced/*/ --input_candidate=gs://ucdp_conflicts_dl_bucket_ucdp-armed-conflicts/data/ucdp/candidate/*/ --gcs_bucket=dataproc-temp-europe-west6-218014015951-ifenzgrj --output=gs://ucdp_conflicts_dl_bucket_ucdp-armed-conflicts/data/ucdp/output/*/ --output_table=ucdp-armed-conflicts.ucdp_conflicts.report
 ```
-
-- To execute the flow, run the following commands in two different CL terminals
-```bash
-prefect agent start -q 'default'
-```
-```bash
-python blocks/blocks.py
-```
-5. Data deep dive
+6. Data for the report
 - The data will be available in BigQuery at `ucdp-armed-conflicts.ucdp_conflicts.report`
