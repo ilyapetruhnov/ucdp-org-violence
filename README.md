@@ -24,16 +24,19 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 - Data warehouse: `BigQuery`
 - Data visualization: `Google Looker Studio`
 
+![](images/CloudArch.jpg)
+
 ## Dashboard 
 [Click here](https://lookerstudio.google.com/s/rTWuX39b4nI) to see Looker dashboard.
 ![](images/report_view.png)
 
 
 ## How to run it?
+
 1. Setup your Google Cloud environment
 - Create a [Google Cloud Platform project](https://console.cloud.google.com/cloud-resource-manager)
 - Configure Identity and Access Management (IAM) for the service account, giving it the following privileges: Owner, BigQuery Admin, Dataproc Admin, Compute Admin, Compute Storage Admin, Storage Admin and Storage Object Admin
-- Enable APIs
+- Enable BigQuery, Compute, Dataproc and Storage APIs
 - Download the JSON credentials and save it in terraform folder, e.g. to `src/terraform/<credentials>.json`
 - Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install-sdk)
 - Authenticate the service account
@@ -49,6 +52,7 @@ conda activate venv
 conda install pip
 pip install -r requirements.txt
 ```
+
 3. Setup your infrastructure
 - Install Terraform (https://developer.hashicorp.com/terraform/downloads)
 - To initiate, plan and apply the infrastructure, adjust and run the following Terraform commands
@@ -58,24 +62,18 @@ terraform init
 terraform plan -var="project=<project_id>"
 terraform apply -var="project=<project_id>"
 ```
+
 4. Orchestration
-- Go to Prefect directory where Dockerfile is located and login to Docker cloud
-
-- To create the [prefect blocks] `/prefect/blocks/blocks.py` run
-
-- From prefect directory create prefect blocks
-
-```bash
-cd prefect/
-python blocks/blocks.py
-```
+- Congigure and launch prefect
 ```bash
 prefect config set PREFECT_API_URL="http://127.0.0.1:4200/api"
 ```
 ```bash
 prefect orion start
 ```
+- In a new terminal window create prefect blocks from prefect directory 
 ```bash
+cd prefect/
 python blocks/blocks.py
 ```
 - Start prefect agent
@@ -113,5 +111,6 @@ cd pyspark/
 gcloud dataproc jobs submit pyspark --cluster=<dataproc_cluster_name> --region=<region> --jars=gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar \
     job.py -- --input_georeferenced=gs://<data_lake_bucket>/data/ucdp/georeferenced/*/ --input_candidate=gs://<data_lake_bucket>/data/ucdp/candidate/*/ --gcs_bucket=<data_lake_bucket> --output=gs://<data_lake_bucket>/data/ucdp/output/*/ --output_table=<project_id>.<BQ_DATASET>.report
 ```
+
 6. Data for the report
 - The data will be available in BigQuery at '<project_id>.<BQ_DATASET>.report'
