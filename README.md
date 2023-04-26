@@ -31,7 +31,7 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 ![](images/report_view.png)
 
 
-## How to run it?
+## How to run it
 
 1. Create a virtual env and install all required dependencies. Example with conda:
 ```bash
@@ -81,6 +81,7 @@ prefect agent start -q 'default'
 ```
 - In a new terminal window deploy the first job (uploading files to GCP Storage)
 ```bash
+cd prefect/
 python flows/deploy_file_upload.py
 ```
 - Run deployment to ingest data for 2022 conflicts
