@@ -3,7 +3,7 @@
 
 ## Project overview
 This project is analyzing the organized violence data collected by Department of Peace and Conflict Research of Uppsala University.
-The project entails end-to-end orchestrated data pipeline. The conflict data is obtained in batches from the [UCDP API](https://ucdp.uu.se/apidocs/) and saved to Google Cloud Storage in parquet format. Afterwards, the data is processed in pyspark and pushed to BigQuery table which acts as a data source for the Looker dashboard.
+The project entails end-to-end orchestrated data pipeline. The conflict data is obtained in batches from the [UCDP API](https://ucdp.uu.se/apidocs/) and saved to Google Cloud Storage in parquet format. Afterwards, the data is processed in pyspark by Dataproc cluster and pushed to BigQuery table which acts as a data source for the Looker dashboard.
 Follow the steps mentioned under `How to run it` to reproduce it.
 
 ## What is UCDP?
@@ -25,7 +25,7 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 - Data visualization: `Google Looker Studio`
 
 ## Dashboard 
-[Click here](https://lookerstudio.google.com/s/rTWuX39b4nI) to see my Looker dashboard.
+[Click here](https://lookerstudio.google.com/s/rTWuX39b4nI) to see Looker dashboard.
 ![](images/report_view.png)
 
 
@@ -34,11 +34,10 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 - Create a [Google Cloud Platform project](https://console.cloud.google.com/cloud-resource-manager)
 - Configure Identity and Access Management (IAM) for the service account, giving it the following privileges: Owner, BigQuery Admin, Dataproc Admin, Compute Admin, Compute Storage Admin, Storage Admin and Storage Object Admin
 - Enable APIs
-- Download the JSON credentials and save it in terraform folder, e.g. to `src/terraform/<credentials>`
+- Download the JSON credentials and save it in terraform folder, e.g. to `src/terraform/<credentials>.json`
 - Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install-sdk)
 - Authenticate the service account
 ```bash
-export YOUR_GCP_CREDENTIALS="~/terraform/<credentials>.json”
 gcloud auth login --cred-file=terraform/<credentials>.json
 gcloud config set project <PROJECT_ID>
 ```
