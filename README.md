@@ -39,7 +39,7 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 - Authenticate the service account
 ```bash
 gcloud auth login --cred-file=terraform/<credentials>.json
-gcloud config set project <PROJECT_ID>
+gcloud config set project <project_id>
 ```
 
 2. Create a virtual env and install all required dependencies. Example with conda:
@@ -55,8 +55,8 @@ pip install -r requirements.txt
 ```bash
 cd terraform/
 terraform init
-terraform plan -var="project=<your-gcp-project-id>"
-terraform apply -var="project=<your-gcp-project-id>"
+terraform plan -var="project=<project_id>"
+terraform apply -var="project=<project_id>"
 ```
 4. Orchestration
 - Go to Prefect directory where Dockerfile is located and login to Docker cloud
@@ -105,12 +105,13 @@ prefect deployment run etl_gcs/api_request_flow
 5. Data processing
 - Start dataproc cluster
 ```bash
-gcloud dataproc clusters start ucdpconflicts --region=europe-west6
+gcloud dataproc clusters start <dataproc_cluster_name> --region=<region>
 ```
 - Wait 1-2 minutes for the cluster to start and submit pyspark job to the cluster
 ```bash
-gcloud dataproc jobs submit pyspark --cluster=ucdpconflicts --region=europe-west6 --jars=gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar \
-    job.py -- --input_georeferenced=gs://ucdp_conflicts_dl_bucket_ucdp-armed-conflicts/data/ucdp/georeferenced/*/ --input_candidate=gs://ucdp_conflicts_dl_bucket_ucdp-armed-conflicts/data/ucdp/candidate/*/ --gcs_bucket=dataproc-temp-europe-west6-218014015951-ifenzgrj --output=gs://ucdp_conflicts_dl_bucket_ucdp-armed-conflicts/data/ucdp/output/*/ --output_table=ucdp-armed-conflicts.ucdp_conflicts.report
+cd pyspark/
+gcloud dataproc jobs submit pyspark --cluster=<dataproc_cluster_name> --region=<region> --jars=gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar \
+    job.py -- --input_georeferenced=gs://<data_lake_bucket>/data/ucdp/georeferenced/*/ --input_candidate=gs://<data_lake_bucket>/data/ucdp/candidate/*/ --gcs_bucket=<data_lake_bucket> --output=gs://<data_lake_bucket>/data/ucdp/output/*/ --output_table=<project_id>.<BQ_DATASET>.report
 ```
 6. Data for the report
-- The data will be available in BigQuery at `ucdp-armed-conflicts.ucdp_conflicts.report`
+- The data will be available in BigQuery at '<project_id>.<BQ_DATASET>.report'
