@@ -11,7 +11,7 @@ import json
 
 # service_account_file_path = os.environ['YOUR_GCP_CREDENTIALS']
 # service_account_file_path = "/opt/prefect/credentials/credentials.json"
-credentials_file = open('../terraform/credentials.json')
+credentials_file = open('../../terraform/credentials.json')
 service_account_info = json.load(credentials_file)
 
 docker_block_name="docker-block"

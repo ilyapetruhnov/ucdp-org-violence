@@ -32,7 +32,8 @@ The Uppsala Conflict Data Program (UCDP) is the world’s main provider of data 
 ## How to run it?
 1. Setup your Google Cloud environment
 - Create a [Google Cloud Platform project](https://console.cloud.google.com/cloud-resource-manager)
-- Configure Identity and Access Management (IAM) for the service account, giving it the following privileges: BigQuery Admin, Dataproc Admin, Compute Admin, Compute Storage Admin, Storage Admin and Storage Object Admin
+- Configure Identity and Access Management (IAM) for the service account, giving it the following privileges: Owner, BigQuery Admin, Dataproc Admin, Compute Admin, Compute Storage Admin, Storage Admin and Storage Object Admin
+- Enable APIs
 - Download the JSON credentials and save it in terraform folder, e.g. to `src/terraform/<credentials>`
 - Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install-sdk)
 - Authenticate the service account
@@ -42,20 +43,15 @@ gcloud auth login --cred-file=terraform/<credentials>.json
 gcloud config set project <PROJECT_ID>
 ```
 
-2. Install all required dependencies into your environment
+2. Create a virtual env and install all required dependencies. Example with conda:
 ```bash
+conda create --name venv
+conda activate venv
+conda install pip
 pip install -r requirements.txt
 ```
 3. Setup your infrastructure
-- Assuming you are using Linux AMD64 run the following commands to install Terraform - if you are using a different OS please choose the correct version [here](https://developer.hashicorp.com/terraform/downloads) and exchange the download link and zip file name
-
-```bash
-sudo apt-get install unzip
-cd ~/bin
-wget https://releases.hashicorp.com/terraform/1.4.1/terraform_1.4.1_linux_amd64.zip
-unzip terraform_1.4.1_linux_amd64.zip
-rm terraform_1.4.1_linux_amd64.zip
-```
+- Install Terraform (https://developer.hashicorp.com/terraform/downloads)
 - To initiate, plan and apply the infrastructure, adjust and run the following Terraform commands
 ```bash
 cd terraform/
@@ -65,12 +61,21 @@ terraform apply -var="project=<your-gcp-project-id>"
 ```
 4. Orchestration
 - Go to Prefect directory where Dockerfile is located and login to Docker cloud
+
+- To create the [prefect blocks] `/prefect/blocks/blocks.py` run
+
+- From prefect directory create prefect blocks
+
 ```bash
-docker login
-docker image pull weekcrackle/prefect:ucdpconflicts
-docker image build -t weekcrackle/prefect:ucdpconflicts .
+cd prefect/
+python blocks/blocks.py
 ```
-- To create the [prefect blocks] `/prefect/pblocks/blocks.py` run
+```bash
+prefect config set PREFECT_API_URL="http://127.0.0.1:4200/api"
+```
+```bash
+prefect orion start
+```
 ```bash
 python blocks/blocks.py
 ```
@@ -93,8 +98,9 @@ prefect deployment run upload_files/file_upload_flow -p "year=23" -p "months=[1,
 - Deploy and run a new job to ingest data from the API (years 1989-2021)
 ```bash
 python flows/deploy_api_gcs.py
-
-prefect deployment run etl_etl_gcs/api_request_flow
+```
+```bash
+prefect deployment run etl_gcs/api_request_flow
 ```
 
 5. Data processing
