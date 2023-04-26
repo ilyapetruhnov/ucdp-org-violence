@@ -1,5 +1,5 @@
 locals {
-  data_lake_bucket = "ucdp_conflicts_dl_bucket"
+  data_lake_bucket = "ucdp_conflicts_bucket"
 }
 
 variable credentials{
@@ -8,7 +8,7 @@ variable credentials{
 }
 
 variable "project" {
-  description = "ucdp-armed-conflicts"
+  description = "noted-acronym-377016"
 }
 
 variable "region" {
@@ -25,11 +25,11 @@ variable "storage_class" {
 variable "BQ_DATASET" {
   description = "BigQuery Dataset that raw data (from GCS) will be written to"
   type = string
-  default = "ucdp_conflicts"
+  default = "ucdpconflicts"
 }
 
 variable "dataproc_cluster_name" {
   description = "Dataproc cluster"
   type        = string
-  default     = "dataproccluster"
+  default     = "ucdpconflicts"
 }
